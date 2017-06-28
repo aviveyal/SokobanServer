@@ -24,7 +24,7 @@ public class Server {
 
 
 
-	private void runServer() throws Exception {
+	public void runServer() throws Exception {
 	
 		ServerSocket server=new ServerSocket(port);
 		server.setSoTimeout(1000);
@@ -34,7 +34,7 @@ public class Server {
 				threadPool.execute(new Runnable() {
 					public void run() {
 						try {
-							ch.HandleClient(aClient.getInputStream(), aClient.getOutputStream());
+							ch.HandleClient(aClient,aClient.getInputStream(), aClient.getOutputStream());
 							aClient.getInputStream().close();
 							aClient.getOutputStream().close();
 							aClient.close();
@@ -53,7 +53,7 @@ public class Server {
 			threadPool.awaitTermination(5, TimeUnit.SECONDS);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		} finally{
 			stop=true;
 		}

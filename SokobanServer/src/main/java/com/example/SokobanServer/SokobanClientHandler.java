@@ -5,39 +5,166 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.net.Socket;
+import java.util.List;
 
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
+import com.example.server.model.AdminModel;
+
+import Adapter.Plan.SokobanAdapter;
 import Adapter.Search.SokobanStateMove;
+import Solver.SokobanSolver;
 
 public class SokobanClientHandler implements ClientHandler {
 
+	public int clientnum = 1;
+
 	@Override
-	public void HandleClient(InputStream in, OutputStream out) {
+	public void HandleClient(Socket socket, InputStream in, OutputStream out) {
 		ObjectInputStream ois = null;
-		ObjectOutputStream oos = null;
+		PrintWriter writer = null;
 		try {
 			ois = new ObjectInputStream(in);
-			oos = new ObjectOutputStream(out);
+			writer = new PrintWriter(out);
+
+			String levelname = (String) ois.readObject();
+			System.out.println("recieved level :" + levelname);
+			AdminModel.getInstance().addClient("Client "+ clientnum, socket);
+			clientnum++;
+			// need send level name to server
+			String sol = getSolutionfromService(levelname);
 			
-			SokobanStateMove game = (SokobanStateMove)ois.readObject();
+			if (sol == null) {
+			String size = (String) ois.readObject();
+			System.out.println("recieved size :" +size);
+
+			String line = "";
+			int maxrow = Integer.parseInt(size.substring(0,size.indexOf(',')));
+			int maxcol = Integer.parseInt(size.substring(size.indexOf(',')+1, size.length()-1));
+			System.out.println("printing max : "+maxrow+","+maxcol);
+			char[][] leveldata = new char[maxrow][maxcol];
+			for (int i = 0; i < maxrow; i++) {
+				line = (String) ois.readObject();
+				for (int j = 0; j < maxcol; j++) {
+					leveldata[i][j] = line.charAt(j);
+				}
+			}
+
 			
-			
-		} catch (IOException e) {			
-			e.printStackTrace();
+			//prints the level that received
+			 for(int x=0;x<maxrow;x++){
+				 for(int y=0;y<maxcol;y++){
+					 System.out.print(leveldata[x][y]);
+					 
+					 if(y==maxcol-1) 
+						 System.out.println();
+			  } 
+			 }
+			 
+				SokobanAdapter SA = new SokobanAdapter(leveldata);
+				Solver.StripsLib.Strips s = new Solver.StripsLib.Strips();
+				String makeSolution = "";
+				List<Solver.StripsLib.Action> list = s.plan(SA.readLevel()); // list
+																				// of
+				// solve the level
+				SokobanSolver solver = new SokobanSolver();
+				List<String> Solution = solver.solve(leveldata);
+				if (!Solution.isEmpty()) {
+					for (String action : Solution) {
+						switch (action) {
+						case "move up":
+							makeSolution += 'U';
+							break;
+						case "move down":
+							makeSolution += 'D';
+							break;
+						case "move left":
+							makeSolution += 'L';
+							break;
+						case "move right":
+							makeSolution += "R";
+							break;
+						}
+
+					}
+					addSolutionToService(levelname, makeSolution);
+				} else {
+					//cant solve - post null
+					addSolutionToService(levelname, null);
+				}
+				
+				// send the solutoin to client
+				writer.println(makeSolution);
+				writer.flush();
+			} else {
+				String buffer = (String) ois.readObject(); //clean 
+				buffer = (String) ois.readObject(); //clean
+				writer.println(sol);
+				writer.flush();
+			}
+
+		} catch (IOException e) {
+			//e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		} finally {
 			try {
 				if (ois != null)
 					ois.close();
-				if (oos != null)
-					oos.close();
-			} catch (IOException e) {				
-				e.printStackTrace();
+				if (writer != null)
+					writer.close();
+			} catch (IOException e) {
+				//e.printStackTrace();
 			}
-		}		
+		}
 
+	}
+
+	private String getSolutionfromService(String name) {
+
+		String url = "http://localhost:8080/SokobanService/webapi/solutions/" + name;
+		Client client = ClientBuilder.newClient();
+		WebTarget webTarget = client.target(url);
+		Response response = webTarget.request(MediaType.TEXT_PLAIN).get(Response.class);
+		if (response.getStatus() == 200) {
+			String Solution = response.readEntity(new GenericType<String>() {
+			});
+			System.out.println("Solution : " + Solution);
+			return Solution;
+		} else {
+			System.out.println(response.getHeaderString("errorResponse"));
+			return null;
+		}
+
+	}
+
+	private void addSolutionToService(String levelname, String solution) {
+
+		String url = "http://localhost:8080/SokobanService/webapi/solutions/";
+		Client client = ClientBuilder.newClient();
+		WebTarget webTarget = client.target(url);
+
+		Form form = new Form();
+		form.param("name", levelname);
+		form.param("solution", solution);
+
+		Response response = webTarget.request().post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED));
+
+		if (response.getStatus() == 204) {
+			System.out.println("Solution added successfully");
+		} else {
+			System.out.println(response.getHeaderString("errorResponse"));
+		}
 	}
 
 }
