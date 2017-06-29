@@ -1,15 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.server.view.DashboardController">
+<AnchorPane prefHeight="403.0" prefWidth="396.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.server.view.DashboardController">
 	 <children>
-        <Button fx:id="button" layoutX="14.0" layoutY="160.0" onAction="#handleButtonAction" prefHeight="26.0" prefWidth="100.0" text="Click Me!" />
-      <ListView fx:id="myListView" layoutX="14.0" layoutY="21.0" prefHeight="109.0" prefWidth="100.0" />
+		       <Button fx:id="button" layoutX="16.0" layoutY="14.0" onAction="#handleButtonAction" prefHeight="37.0" prefWidth="109.0" text="Update list" />
+      <ListView fx:id="myListView" layoutX="24.0" layoutY="92.0" prefHeight="109.0" prefWidth="175.0" />
+      <Text layoutX="27.0" layoutY="80.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Clients connected" wrappingWidth="119.33337786793709">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Text>
+      <ListView fx:id="tasks" layoutX="24.0" layoutY="237.0" prefHeight="133.0" prefWidth="354.0" />
+      <Text fill="#208d35" layoutX="24.0" layoutY="223.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Tasks history " wrappingWidth="130.00000101327896">
+         <font>
+            <Font size="20.0" />
+         </font>
+      </Text>
+      <Button layoutX="217.0" layoutY="122.0" mnemonicParsing="false" onAction="#disconnect" prefHeight="37.0" prefWidth="146.0" text="disconnect chosen client" />
+      <Label contentDisplay="CENTER" layoutX="153.0" layoutY="14.0" prefHeight="54.0" prefWidth="97.0" text="ADMIN" textAlignment="JUSTIFY" textFill="#2202ef" textOverrun="CENTER_WORD_ELLIPSIS">
+         <font>
+            <Font size="28.0" />
+         </font>
+      </Label>
+      <Button layoutX="309.0" layoutY="26.0" mnemonicParsing="false" text="STOP" textFill="RED">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Button>
     </children>
 </AnchorPane>
-

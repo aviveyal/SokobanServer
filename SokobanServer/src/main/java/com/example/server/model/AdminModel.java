@@ -6,10 +6,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+/**
+ * 
+ * @author Aviv Eyal
+ *This is the Admin control- controling on clients and running tasks 
+ */
 public class AdminModel {
-	private Map<String, Socket> connectedClients =
-			new HashMap<String, Socket>();
+	private Map<String, Socket> connectedClients =	new HashMap<String, Socket>();
+	private List<String> tasks = new ArrayList<>();
 	
 	private static final AdminModel instance = new AdminModel();
 	private AdminModel() {}
@@ -29,6 +33,7 @@ public class AdminModel {
 	}
 	
 	public void disconnectClient(String userName) {
+		System.out.println("disconnecting :" +userName);
 		Socket socket = connectedClients.get(userName);
 		try {
 			socket.close();
@@ -37,4 +42,13 @@ public class AdminModel {
 			e.printStackTrace();
 		}
 	}
+	public void addTask(String task) {
+		tasks.add(task);
+		
+	}
+	public List<String> getTask() {
+		return tasks;
+		
+	}
+	
 }

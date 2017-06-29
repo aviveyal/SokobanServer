@@ -1,6 +1,8 @@
 package com.example.DB;
 
-
+/**
+ * databasae holding all solution , this class handler all the query to control DB
+ */
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;

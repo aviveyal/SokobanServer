@@ -2,7 +2,11 @@ package com.example.DB;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-
+/**
+ * 
+ * @author Aviv Eyal
+ *the SQL tabke that hold the solutions
+ */
 @Entity(name="SokobanSolution")
 public class SokobanSolution {
 

@@ -10,7 +10,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 /**
- * Hello world!
+ *  The main class - running the server and load gui 
  *
  */
 public class App extends Application
@@ -44,7 +44,7 @@ public class App extends Application
 	public void start(Stage stage) throws Exception {
 		Parent root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
         
-        Scene scene = new Scene(root, 300, 275);
+        Scene scene = new Scene(root, 400,400);
     
         stage.setTitle("Admin Dashboard");
         stage.setScene(scene);

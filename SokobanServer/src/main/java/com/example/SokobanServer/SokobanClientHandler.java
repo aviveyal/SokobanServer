@@ -1,5 +1,6 @@
 package com.example.SokobanServer;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -21,29 +22,42 @@ import javax.ws.rs.core.Response;
 import com.example.server.model.AdminModel;
 
 import Adapter.Plan.SokobanAdapter;
-import Adapter.Search.SokobanStateMove;
 import Solver.SokobanSolver;
-
+/**
+ * 
+ * @author Aviv Eyal
+ *The sokoban client handler - recieve info of level from client and connect to a web service to get exisiting solution
+ *or solving it and return the solution for the client
+ */
 public class SokobanClientHandler implements ClientHandler {
 
-	public int clientnum = 1;
+	public int clientnum = 0;
+	private ObjectInputStream ois=null;
+	private PrintWriter writer=null;
+	private Socket socket;
 
 	@Override
 	public void HandleClient(Socket socket, InputStream in, OutputStream out) {
-		ObjectInputStream ois = null;
-		PrintWriter writer = null;
 		try {
+			
+			this.socket=socket;
+			clientnum++;
 			ois = new ObjectInputStream(in);
 			writer = new PrintWriter(out);
 
 			String levelname = (String) ois.readObject();
 			System.out.println("recieved level :" + levelname);
+			AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"sent level");
 			AdminModel.getInstance().addClient("Client "+ clientnum, socket);
-			clientnum++;
+			//AdminModel.getInstance().addClient(socket.toString(),socket);
+			
 			// need send level name to server
+			AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"checking if level exists in Database");
 			String sol = getSolutionfromService(levelname);
 			
 			if (sol == null) {
+				AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"level not exists!");
+				AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server trying to solve the level");
 			String size = (String) ois.readObject();
 			System.out.println("recieved size :" +size);
 
@@ -79,6 +93,7 @@ public class SokobanClientHandler implements ClientHandler {
 				SokobanSolver solver = new SokobanSolver();
 				List<String> Solution = solver.solve(leveldata);
 				if (!Solution.isEmpty()) {
+					AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server successed solve");
 					for (String action : Solution) {
 						switch (action) {
 						case "move up":
@@ -97,19 +112,25 @@ public class SokobanClientHandler implements ClientHandler {
 
 					}
 					addSolutionToService(levelname, makeSolution);
+					AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server sending solution to client");
 				} else {
 					//cant solve - post null
 					addSolutionToService(levelname, null);
+					AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server couldnt solve level");
 				}
 				
 				// send the solutoin to client
 				writer.println(makeSolution);
 				writer.flush();
+				
 			} else {
+				AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"solution already exists - sending to client");
 				String buffer = (String) ois.readObject(); //clean 
 				buffer = (String) ois.readObject(); //clean
 				writer.println(sol);
 				writer.flush();
+			
+				
 			}
 
 		} catch (IOException e) {

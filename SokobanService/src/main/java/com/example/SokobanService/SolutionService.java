@@ -14,6 +14,9 @@ import javax.ws.rs.core.MediaType;
 import com.example.DB.DbHandler;
 import com.example.DB.SokobanSolution;
 
+/**
+ * Root solutions
+ */
 @Path("solutions")
 public class SolutionService {
 

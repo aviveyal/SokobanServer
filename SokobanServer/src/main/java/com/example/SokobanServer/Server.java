@@ -7,7 +7,11 @@ import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
+/**
+ * 
+ * @author Aviv Eyal
+ *	the server with thread pool open a thread for each client and handle it
+ */
 public class Server {
 	private int port;
 	private ClientHandler ch;
@@ -47,7 +51,6 @@ public class Server {
 	}
 	public void stopServer()
 	{
-		
 		threadPool.shutdown();
 		try {
 			threadPool.awaitTermination(5, TimeUnit.SECONDS);
