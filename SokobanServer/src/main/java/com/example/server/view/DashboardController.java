@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ResourceBundle;
 
 import com.example.server.model.AdminModel;
+import com.example.viewmodel.DashboardViewModel;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
@@ -21,7 +22,7 @@ import javafx.scene.text.Text;
  * @author Aviv Eyal
  *	control the gui 	
  */
-public class DashboardController implements Initializable {
+public class DashboardController{
 
     @FXML
     private Button button;
@@ -38,30 +39,14 @@ public class DashboardController implements Initializable {
     @FXML
     private ListView tasks;
     
+    private DashboardViewModel vm;
     private AdminModel model;
 
     protected ListProperty<String> listProperty = new SimpleListProperty<>();
     protected ListProperty<String> listProperty2 = new SimpleListProperty<>();
 
-    @FXML
-    private void handleButtonAction(ActionEvent event) {
-        //listProperty.set(FXCollections.observableArrayList(europeanCurrencyList));
-    	updateList();
-    }
-    
-      
-    @Override
-    public void initialize(URL url, ResourceBundle rb) {
-      
-    	model = AdminModel.getInstance();      
-        myListView.itemsProperty().bind(listProperty);
-        tasks.itemsProperty().bind(listProperty2);
-
-        //This does not work, you can not directly add to a ListProperty
-        //listProperty.addAll( asianCurrencyList );
-        listProperty.set(FXCollections.observableArrayList(model.getClients()));
-    }
-    
+        
+            
     private void updateList() {
     	listProperty.set(FXCollections.observableArrayList(model.getClients()));
     	listProperty2.set(FXCollections.observableArrayList(model.getTask()));
@@ -69,9 +54,15 @@ public class DashboardController implements Initializable {
     
     public void disconnect()
     {
-    	String username =myListView.getSelectionModel().getSelectedItem().toString();
-    	model.disconnectClient(username);
-    	listProperty2.add("Disconnecting "+username);
+        myListView.getItems().remove(myListView.getSelectionModel().getSelectedItem());
+   	   	listProperty2.add("Disconnecting "+myListView.getSelectionModel().getSelectedItem());
              	
     }
+    public void setViewModel(DashboardViewModel vm)
+    {
+    	this.vm = vm;
+    	myListView.itemsProperty().bind(vm.clientsList);
+    	tasks.itemsProperty().bind(vm.tasksList);
+    }
+    
 }

@@ -31,7 +31,7 @@ import Solver.SokobanSolver;
  */
 public class SokobanClientHandler implements ClientHandler {
 
-	public int clientnum = 0;
+	
 	private ObjectInputStream ois=null;
 	private PrintWriter writer=null;
 	private Socket socket;
@@ -41,23 +41,23 @@ public class SokobanClientHandler implements ClientHandler {
 		try {
 			
 			this.socket=socket;
-			clientnum++;
+			
 			ois = new ObjectInputStream(in);
 			writer = new PrintWriter(out);
 
 			String levelname = (String) ois.readObject();
 			System.out.println("recieved level :" + levelname);
-			AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"sent level");
-			AdminModel.getInstance().addClient("Client "+ clientnum, socket);
+			AdminModel.getInstance().addTask(socket.getPort()+"-"+"sent level");
+			
 			//AdminModel.getInstance().addClient(socket.toString(),socket);
 			
 			// need send level name to server
-			AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"checking if level exists in Database");
+			AdminModel.getInstance().addTask(socket.getPort()+"-"+"checking if level exists in Database");
 			String sol = getSolutionfromService(levelname);
 			
 			if (sol == null) {
-				AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"level not exists!");
-				AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server trying to solve the level");
+				AdminModel.getInstance().addTask(socket.getPort()+"-"+"level not exists!");
+				AdminModel.getInstance().addTask(socket.getPort()+"-"+"server trying to solve the level");
 			String size = (String) ois.readObject();
 			System.out.println("recieved size :" +size);
 
@@ -93,7 +93,7 @@ public class SokobanClientHandler implements ClientHandler {
 				SokobanSolver solver = new SokobanSolver();
 				List<String> Solution = solver.solve(leveldata);
 				if (!Solution.isEmpty()) {
-					AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server successed solve");
+					AdminModel.getInstance().addTask(socket.getPort()+"-"+"server successed solve");
 					for (String action : Solution) {
 						switch (action) {
 						case "move up":
@@ -112,11 +112,11 @@ public class SokobanClientHandler implements ClientHandler {
 
 					}
 					addSolutionToService(levelname, makeSolution);
-					AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server sending solution to client");
+					AdminModel.getInstance().addTask(socket.getPort()+"-"+"server sending solution to client");
 				} else {
 					//cant solve - post null
 					addSolutionToService(levelname, null);
-					AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"server couldnt solve level");
+					AdminModel.getInstance().addTask(socket.getPort()+"-"+"server couldnt solve level");
 				}
 				
 				// send the solutoin to client
@@ -124,7 +124,7 @@ public class SokobanClientHandler implements ClientHandler {
 				writer.flush();
 				
 			} else {
-				AdminModel.getInstance().addTask("Client "+ clientnum+"-"+"solution already exists - sending to client");
+				AdminModel.getInstance().addTask(socket.getPort()+"-"+"solution already exists - sending to client");
 				String buffer = (String) ois.readObject(); //clean 
 				buffer = (String) ois.readObject(); //clean
 				writer.println(sol);

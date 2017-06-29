@@ -4,14 +4,16 @@ import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
 /**
  * 
  * @author Aviv Eyal
  *This is the Admin control- controling on clients and running tasks 
  */
-public class AdminModel {
+public class AdminModel extends Observable{
 	private Map<String, Socket> connectedClients =	new HashMap<String, Socket>();
 	private List<String> tasks = new ArrayList<>();
 	
@@ -23,6 +25,11 @@ public class AdminModel {
 	
 	public void addClient(String userName, Socket socket) {
 		connectedClients.put(userName, socket);
+		setChanged();
+		List<String> params = new LinkedList<String>();
+		params.add("Add");
+		params.add(userName);
+		notifyObservers(params);
 	}
 	
 	public List<String> getClients() {
@@ -37,6 +44,11 @@ public class AdminModel {
 		Socket socket = connectedClients.get(userName);
 		try {
 			socket.close();
+			setChanged();
+			List<String> params = new LinkedList<String>();
+			params.add("Remove");
+			params.add(userName);
+			notifyObservers(params);
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -44,7 +56,11 @@ public class AdminModel {
 	}
 	public void addTask(String task) {
 		tasks.add(task);
-		
+		setChanged();
+		List<String> params = new LinkedList<String>();
+		params.add("Addtask");
+		params.add(task);
+		notifyObservers(params);
 	}
 	public List<String> getTask() {
 		return tasks;

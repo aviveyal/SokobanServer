@@ -1,6 +1,8 @@
 package com.example.server.view;
 
 import com.example.SokobanServer.SokobanClientHandler;
+import com.example.server.model.AdminModel;
+import com.example.viewmodel.DashboardViewModel;
 import com.example.SokobanServer.Server;
 
 import javafx.application.Application;
@@ -42,9 +44,19 @@ public class App extends Application
 
 	@Override
 	public void start(Stage stage) throws Exception {
-		Parent root = FXMLLoader.load(getClass().getResource("AdminDashboard.fxml"));
-        
-        Scene scene = new Scene(root, 400,400);
+		
+AdminModel model = AdminModel.getInstance();
+		
+		DashboardViewModel vm = new DashboardViewModel(model);
+		
+		model.addObserver(vm);
+		
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("AdminDashboard.fxml"));
+		Parent root = (Parent)loader.load();
+		DashboardController controller = loader.getController();
+		
+        controller.setViewModel(vm);
+        Scene scene = new Scene(root, 400, 400);
     
         stage.setTitle("Admin Dashboard");
         stage.setScene(scene);
