@@ -23,67 +23,66 @@ import com.example.server.model.AdminModel;
 
 import Adapter.Plan.SokobanAdapter;
 import Solver.SokobanSolver;
+
 /**
  * 
- * @author Aviv Eyal
- *The sokoban client handler - recieve info of level from client and connect to a web service to get exisiting solution
- *or solving it and return the solution for the client
+ * @author Aviv Eyal The sokoban client handler - recieve info of level from
+ *         client and connect to a web service to get exisiting solution or
+ *         solving it and return the solution for the client
  */
 public class SokobanClientHandler implements ClientHandler {
 
-	
-	private ObjectInputStream ois=null;
-	private PrintWriter writer=null;
+	private ObjectInputStream ois = null;
+	private PrintWriter writer = null;
 	private Socket socket;
 
 	@Override
 	public void HandleClient(Socket socket, InputStream in, OutputStream out) {
 		try {
-			
-			this.socket=socket;
-			
+
+			this.socket = socket;
+
 			ois = new ObjectInputStream(in);
 			writer = new PrintWriter(out);
 
 			String levelname = (String) ois.readObject();
 			System.out.println("recieved level :" + levelname);
-			AdminModel.getInstance().addTask(socket.getPort()+"-"+"sent level");
-			
-			//AdminModel.getInstance().addClient(socket.toString(),socket);
-			
+			AdminModel.getInstance().addTask(socket.getPort() + "-" + "sent level");
+
+			// AdminModel.getInstance().addClient(socket.toString(),socket);
+
 			// need send level name to server
-			AdminModel.getInstance().addTask(socket.getPort()+"-"+"checking if level exists in Database");
+			AdminModel.getInstance().addTask(socket.getPort() + "-" + "checking if level exists in Database");
 			String sol = getSolutionfromService(levelname);
-			
+
 			if (sol == null) {
-				AdminModel.getInstance().addTask(socket.getPort()+"-"+"level not exists!");
-				AdminModel.getInstance().addTask(socket.getPort()+"-"+"server trying to solve the level");
-			String size = (String) ois.readObject();
-			System.out.println("recieved size :" +size);
+				AdminModel.getInstance().addTask(socket.getPort() + "-" + "level not exists!");
+				AdminModel.getInstance().addTask(socket.getPort() + "-" + "server trying to solve the level");
+				String size = (String) ois.readObject();
+				System.out.println("recieved size :" + size);
 
-			String line = "";
-			int maxrow = Integer.parseInt(size.substring(0,size.indexOf(',')));
-			int maxcol = Integer.parseInt(size.substring(size.indexOf(',')+1, size.length()-1));
-			System.out.println("printing max : "+maxrow+","+maxcol);
-			char[][] leveldata = new char[maxrow][maxcol];
-			for (int i = 0; i < maxrow; i++) {
-				line = (String) ois.readObject();
-				for (int j = 0; j < maxcol; j++) {
-					leveldata[i][j] = line.charAt(j);
+				String line = "";
+				int maxrow = Integer.parseInt(size.substring(0, size.indexOf(',')));
+				int maxcol = Integer.parseInt(size.substring(size.indexOf(',') + 1, size.length() - 1));
+				System.out.println("printing max : " + maxrow + "," + maxcol);
+				char[][] leveldata = new char[maxrow][maxcol];
+				for (int i = 0; i < maxrow; i++) {
+					line = (String) ois.readObject();
+					for (int j = 0; j < maxcol; j++) {
+						leveldata[i][j] = line.charAt(j);
+					}
 				}
-			}
 
-			
-			//prints the level that received
-			 for(int x=0;x<maxrow;x++){
-				 for(int y=0;y<maxcol;y++){
-					 System.out.print(leveldata[x][y]);
-					 
-					 if(y==maxcol-1) 
-						 System.out.println();
-			  } 
-			 }
-			 
+				// prints the level that received
+				for (int x = 0; x < maxrow; x++) {
+					for (int y = 0; y < maxcol; y++) {
+						System.out.print(leveldata[x][y]);
+
+						if (y == maxcol - 1)
+							System.out.println();
+					}
+				}
+
 				SokobanAdapter SA = new SokobanAdapter(leveldata);
 				Solver.StripsLib.Strips s = new Solver.StripsLib.Strips();
 				String makeSolution = "";
@@ -93,7 +92,7 @@ public class SokobanClientHandler implements ClientHandler {
 				SokobanSolver solver = new SokobanSolver();
 				List<String> Solution = solver.solve(leveldata);
 				if (!Solution.isEmpty()) {
-					AdminModel.getInstance().addTask(socket.getPort()+"-"+"server successed solve");
+					AdminModel.getInstance().addTask(socket.getPort() + "-" + "server successed solve");
 					for (String action : Solution) {
 						switch (action) {
 						case "move up":
@@ -112,32 +111,32 @@ public class SokobanClientHandler implements ClientHandler {
 
 					}
 					addSolutionToService(levelname, makeSolution);
-					AdminModel.getInstance().addTask(socket.getPort()+"-"+"server sending solution to client");
+					AdminModel.getInstance().addTask(socket.getPort() + "-" + "server sending solution to client");
 				} else {
-					//cant solve - post null
+					// cant solve - post null
 					addSolutionToService(levelname, null);
-					AdminModel.getInstance().addTask(socket.getPort()+"-"+"server couldnt solve level");
+					AdminModel.getInstance().addTask(socket.getPort() + "-" + "server couldnt solve level");
 				}
-				
+
 				// send the solutoin to client
 				writer.println(makeSolution);
 				writer.flush();
-				
+
 			} else {
-				AdminModel.getInstance().addTask(socket.getPort()+"-"+"solution already exists - sending to client");
-				String buffer = (String) ois.readObject(); //clean 
-				buffer = (String) ois.readObject(); //clean
+				AdminModel.getInstance()
+						.addTask(socket.getPort() + "-" + "solution already exists - sending to client");
+				String buffer = (String) ois.readObject(); // clean
+				buffer = (String) ois.readObject(); // clean
 				writer.println(sol);
 				writer.flush();
-			
-				
+
 			}
 
 		} catch (IOException e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 		} catch (ClassNotFoundException e) {
 			// TODO Auto-generated catch block
-			//e.printStackTrace();
+			// e.printStackTrace();
 		} finally {
 			try {
 				if (ois != null)
@@ -145,7 +144,7 @@ public class SokobanClientHandler implements ClientHandler {
 				if (writer != null)
 					writer.close();
 			} catch (IOException e) {
-				//e.printStackTrace();
+				// e.printStackTrace();
 			}
 		}
 
