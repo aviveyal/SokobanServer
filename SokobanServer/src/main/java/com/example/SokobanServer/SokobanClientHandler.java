@@ -89,7 +89,7 @@ public class SokobanClientHandler implements ClientHandler {
 				// solve the level
 				SokobanSolver solver = new SokobanSolver();
 				List<String> Solution = solver.solve(leveldata);
-				if (!Solution.isEmpty()) {
+				if (Solution !=null) {
 					AdminModel.getInstance().addTask(socket.getPort() + "-" + "server successed solve");
 					for (String action : Solution) {
 						switch (action) {
@@ -103,22 +103,25 @@ public class SokobanClientHandler implements ClientHandler {
 							makeSolution += 'L';
 							break;
 						case "move right":
-							makeSolution += "R";
+							makeSolution += 'R';
 							break;
 						}
 
 					}
 					addSolutionToService(levelname, makeSolution);
 					AdminModel.getInstance().addTask(socket.getPort() + "-" + "server sending solution to client");
+					// send the solutoin to client
+					writer.println(makeSolution);
+					writer.flush();
 				} else {
 					// cant solve - post null
 					addSolutionToService(levelname, null);
 					AdminModel.getInstance().addTask(socket.getPort() + "-" + "server couldnt solve level");
+					writer.println("");
+					writer.flush();
 				}
 
-				// send the solutoin to client
-				writer.println(makeSolution);
-				writer.flush();
+				
 
 			} else {
 				AdminModel.getInstance().addTask(socket.getPort() + "-" + "solution already exists - sending to client");
