@@ -34,14 +34,12 @@ public class SokobanClientHandler implements ClientHandler {
 
 	private ObjectInputStream ois = null;
 	private PrintWriter writer = null;
-	private Socket socket;
-
+	
 	@Override
 	public void HandleClient(Socket socket, InputStream in, OutputStream out) {
 		try {
 
-			this.socket = socket;
-
+			AdminModel.getInstance().addClient(socket.getPort()+" ", socket);
 			ois = new ObjectInputStream(in);
 			writer = new PrintWriter(out);
 
@@ -123,8 +121,7 @@ public class SokobanClientHandler implements ClientHandler {
 				writer.flush();
 
 			} else {
-				AdminModel.getInstance()
-						.addTask(socket.getPort() + "-" + "solution already exists - sending to client");
+				AdminModel.getInstance().addTask(socket.getPort() + "-" + "solution already exists - sending to client");
 				String buffer = (String) ois.readObject(); // clean
 				buffer = (String) ois.readObject(); // clean
 				writer.println(sol);

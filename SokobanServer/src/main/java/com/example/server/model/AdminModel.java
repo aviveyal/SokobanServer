@@ -23,7 +23,7 @@ public class AdminModel extends Observable{
 		return instance;
 	}
 	
-	public void addClient(String userName, Socket socket) {
+	public void addClient(String userName, Socket socket){
 		connectedClients.put(userName, socket);
 		setChanged();
 		List<String> params = new LinkedList<String>();
@@ -54,7 +54,7 @@ public class AdminModel extends Observable{
 			e.printStackTrace();
 		}
 	}
-	public void addTask(String task) {
+	public void addTask(String task) throws IOException {
 		tasks.add(task);
 		setChanged();
 		List<String> params = new LinkedList<String>();

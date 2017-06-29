@@ -40,8 +40,6 @@ public class Server {
 				threadPool.execute(new Runnable() {
 					public void run() {
 						try {
-							
-							AdminModel.getInstance().addClient(aClient.getPort()+" ", aClient);
 							ch.HandleClient(aClient,aClient.getInputStream(), aClient.getOutputStream());
 							aClient.getInputStream().close();
 							aClient.getOutputStream().close();

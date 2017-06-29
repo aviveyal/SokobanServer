@@ -7,6 +7,7 @@ import java.util.Observer;
 
 import com.example.server.model.AdminModel;
 
+import javafx.application.Platform;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.FXCollections;
@@ -36,13 +37,14 @@ public class DashboardViewModel implements Observer {
 
 			@Override
 			public void onChanged(javafx.collections.ListChangeListener.Change<? extends String> c) {
+				 while (c.next()){
 				if (c.getRemovedSize() > 0) {
 					
 					for (String client: c.getRemoved()) {
 						adminModel.disconnectClient(client);
 					}
 				}
-				
+		}
 			}
 		});
 		
@@ -51,6 +53,10 @@ public class DashboardViewModel implements Observer {
 	
 	@Override
 	public void update(Observable o, Object arg) {
+		Platform.runLater(
+				  () -> {
+				    // Update UI here.
+				
 		if (o == adminModel) {
 			List<String> params = (LinkedList<String>)arg;
 			String op = params.get(0);
@@ -68,7 +74,9 @@ public class DashboardViewModel implements Observer {
 				
 			else
 				observableList.remove(param);
-		}		
+		}
+	  }
+	);
 	}
 
 }

@@ -54,9 +54,11 @@ public class DashboardController{
     
     public void disconnect()
     {
+    	if(myListView.getSelectionModel().getSelectedItem()!=null)
+    	{
         myListView.getItems().remove(myListView.getSelectionModel().getSelectedItem());
-   	   	listProperty2.add("Disconnecting "+myListView.getSelectionModel().getSelectedItem());
-             	
+   	   	System.out.println("Disconnecting "+myListView.getSelectionModel().getSelectedItem());
+    	}    	
     }
     public void setViewModel(DashboardViewModel vm)
     {
